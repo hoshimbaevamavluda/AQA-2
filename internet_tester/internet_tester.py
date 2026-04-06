@@ -73,18 +73,29 @@ if __name__ == "__main__":
         # print(f"✅ Checkbox 1: checked={chkbox1.is_checked()}")
         # print(f"✅ Checkbox 2: checked={chkbox2.is_checked()}")
         # browser.close()
+        #
+        # # Task 06
+        # page.get_by_role("link", name="Dropdown").click()
+        # page.click("#dropdown")
+        # txt_dropdown = page.inner_text("#dropdown")
+        # assert TXT_TO_DROPDOWN in txt_dropdown, f"Текст другой {txt_dropdown=}"
+        # option1 = page.select_option("#dropdown", value="1")
+        # expect(page.locator("#dropdown")).to_contain_text("Option 1")
+        # page.click("#dropdown")
+        # option2 = page.select_option("#dropdown", value="2")
+        # expect(page.locator("#dropdown")).to_contain_text("Option 2")
+        # print("✅ Выбрано: Option 2")
 
-        # Task 06
-        page.get_by_role("link", name="Dropdown").click()
-        page.click("#dropdown")
-        txt_dropdown = page.inner_text("#dropdown")
-        assert TXT_TO_DROPDOWN in txt_dropdown, f"Текст другой {txt_dropdown=}"
-        option1 = page.select_option("#dropdown", value="1")
-        expect(page.locator("#dropdown")).to_contain_text("Option 1")
-        page.click("#dropdown")
-        option2 = page.select_option("#dropdown", value="2")
-        expect(page.locator("#dropdown")).to_contain_text("Option 2")
-        print("✅ Выбрано: Option 2")
+        # Task 07
+        page.get_by_role("link", name="Inputs").click()
+        loc_numb = "//input[@type='number']"
+        page.fill(loc_numb, "123")
+        txt_number = page.locator(loc_numb).input_value()
+        print(txt_number)
+        page.locator(loc_numb).fill("456")
+        print("✅ Введено: 456")
+
+
 
 
 
