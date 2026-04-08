@@ -89,6 +89,7 @@ def test_04(page):
     assert_text_in_url_print(page, PAGE_LOGIN,
                              "✅ Успешный выход! ")
 
+
 def test_05(page):
     """ 🌐26x05 """
     navigate_to_example(page, "Checkboxes")
@@ -114,6 +115,7 @@ def test_06(page):
     assert_subtext_in_text("Please select an option",  select_1_text, "Элемент ")
     dropdown.click()
 
+
 def test_07(page):
     navigate_to_example(page,"Inputs")
     loc_numb = "//input[@type='number']"
@@ -123,12 +125,14 @@ def test_07(page):
     page.locator(loc_numb).fill("456")
     print("✅ Введено: 456")
 
+
 def test_08(page):
     navigate_to_example(page, "Hovers")
     page.hover("div:nth-child(3) > img")
     user1 = page.locator("div:nth-child(3) > div > h5")
     txt_user1 = user1.inner_text()
     assert_subtext_in_text("name: user1", txt_user1)
+
 
 def test_09(page):
     navigate_to_example(page, "JavaScript Alerts")
@@ -139,3 +143,17 @@ def test_09(page):
     txt_result = result.inner_text()
     assert_subtext_in_text("You successfully clicked an alert", txt_result)
     print(f"✅ Alert принят. Сообщение: {txt_result}")
+
+
+def test_10(page):
+    with open("test_upload.txt", "w") as file:
+        file.write("Hello Playwright")
+
+    navigate_to_example(page, "File Upload")
+
+    page.set_input_files("#file-upload", "test_upload.txt")
+
+    page.click("#file-submit")
+
+    expect(page.locator("#uploaded-files")).to_have_text("test_upload.txt")
+    print(f"✅ Файл загружен: test_upload.txt")
