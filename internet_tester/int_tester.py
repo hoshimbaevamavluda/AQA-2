@@ -157,3 +157,14 @@ def test_10(page):
 
     expect(page.locator("#uploaded-files")).to_have_text("test_upload.txt")
     print(f"✅ Файл загружен: test_upload.txt")
+
+
+def test_11(page):
+    navigate_to_example(page, "Dynamic Loading")
+    exampl_1 = page.locator("a:nth-child(5)")
+    exampl_1.click()
+    btn_start = page.get_by_role("button", name="Start")
+    btn_start.click()
+    page.wait_for_selector("#finish")
+    expect(page.locator("#finish")).to_have_text("Hello World!")
+    print("✅ Элемент появился: Hello World!")
