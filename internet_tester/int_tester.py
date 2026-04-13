@@ -29,8 +29,8 @@ def page():
 
 
 def navigate_to_example(page, example_name: str):
-    el_form_auth = page.get_by_role("link", name=example_name)
-    el_form_auth.click()
+    page.goto(BASE_URL)
+    page.get_by_role("link", name=example_name).click()
     return page.url
 
 
@@ -64,14 +64,11 @@ def test_02(page):
 def test_03(page):
     """ 🌐26x03: Форма логина (Fill + Click) """
     navigate_to_example(page, TITLE_FORM_AUTH)
-    field_username = page.locator("#username")
-    field_password = page.locator("#password")
-    env_username = os.environ.get("USER")
-    env_password = os.environ.get("PASS")
-    field_username.fill(env_username)
-    field_password.fill(env_password)
-    btn_login = page.get_by_role("button", name="Login")
-    btn_login.click()
+    page.get_by_role("textbox", name="Username").fill("tomsmith")
+    page.get_by_role("textbox", name="Password").fill("SuperSecretPassword!")
+
+    page.get_by_role("button", name="Login").click()
+
     assert_text_in_url_print(page, "/secure",
                              "✅ Успешный вход! ")
 
@@ -119,11 +116,11 @@ def test_06(page):
 def test_07(page):
     navigate_to_example(page,"Inputs")
     loc_numb = "//input[@type='number']"
-    page.fill(loc_numb, "123")
+    page.fill(loc_numb, input())
     txt_number = page.locator(loc_numb).input_value()
     print(txt_number)
-    page.locator(loc_numb).fill("456")
-    print("✅ Введено: 456")
+    page.locator(loc_numb).fill(input())
+    print(f"✅ Введено: {us_input}")
 
 
 def test_08(page):
@@ -168,3 +165,117 @@ def test_11(page):
     page.wait_for_selector("#finish")
     expect(page.locator("#finish")).to_have_text("Hello World!")
     print("✅ Элемент появился: Hello World!")
+
+
+def run_full_test(page):
+    results = {}
+
+    # 1. Form Authentication (вход + выход)
+    try:
+        navigate_to_example(page, "Form Authentication")
+
+        page.get_by_role("textbox", name="Username").fill("tomsmith")
+        page.get_by_role("textbox", name="Password").fill("SuperSecretPassword!")
+
+        page.get_by_role("button", name="Login").click()
+
+        assert "/secure" in page.url, "Не удалось войти"
+
+        page.screenshot(path="form_auth_login_success.png")
+
+        page.get_by_role("link", name="Logout").click()
+        assert "/login" in page.url, "Не удалось выйти"
+
+        page.screenshot(path="form_auth_logout_success.png")
+        results["Form Authentication"] = True
+
+    except Exception as e:
+        print(f"Ошибка в Form Authentication: {e}")
+        results["Form Authentication"] = False
+
+
+    # 2. Checkboxes
+    try:
+        navigate_to_example(page, "Checkboxes")
+
+        chkbox1 = page.locator("#checkboxes input").nth(0)
+        chkbox2 = page.locator("#checkboxes input").nth(1)
+
+        chkbox1.check()
+        chkbox2.uncheck()
+
+        assert chkbox1.is_checked(), "Checkbox 1 не отмечен"
+        assert not chkbox2.is_checked(), "Checkbox 2 не снят"
+
+        page.screenshot(path="checkboxes_success.png")
+        results["Checkboxes"] = True
+
+    except Exception as e:
+        print(f"Ошибка в Checkboxes: {e}")
+        results["Checkboxes"] = False
+
+    # 3. Dropdown
+    try:
+        navigate_to_example(page, "Dropdown")
+
+        dropdown = page.locator("#dropdown")
+        dropdown.select_option("2")
+
+        selected_value = dropdown.input_value()
+        assert selected_value == "2", "Option 2 не выбрана"
+
+        page.screenshot(path="dropdown_success.png")
+        results["Dropdown"] = True
+
+    except Exception as e:
+        print(f"Ошибка в Dropdown: {e}")
+        results["Dropdown"] = False
+
+    # 4. Inputs
+    try:
+        navigate_to_example(page, "Inputs")
+
+        input_field = page.locator("input[type='number']")
+        input_field.fill("999")
+
+        assert input_field.input_value() == "999", "Число 999 не введено"
+
+        page.screenshot(path="inputs_success.png")
+        results["Inputs"] = True
+
+    except Exception as e:
+        print(f"Ошибка в Inputs: {e}")
+        results["Inputs"] = False
+
+    # 5. Hovers
+    try:
+        navigate_to_example(page, "Hovers")
+
+        first_image = page.locator(".figure").nth(0)
+        first_image.hover()
+
+        user_text = page.locator(".figure").nth(0).locator("h5").inner_text()
+        assert "name: user1" in user_text, "Не появился текст user1"
+
+        page.screenshot(path="hovers_success.png")
+        results["Hovers"] = True
+
+    except Exception as e:
+        print(f"Ошибка в Hovers: {e}")
+        results["Hovers"] = False
+
+    # Отчёт
+    print("\n📊 ОТЧЁТ:")
+    for section, status in results.items():
+        print(f"{'✅' if status else '❌'} {section}")
+
+    if all(results.values()):
+        print("\nВсе тесты пройдены!")
+    else:
+        print("\nЕсть ошибки в некоторых разделах.")
+
+    return results
+
+
+def test_12(page):
+    run_full_test(page)
